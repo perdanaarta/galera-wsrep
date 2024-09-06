@@ -2,8 +2,6 @@ version: '3.8'
 
 services:
   mariadb1:
-    depends_on:
-      - haproxy
     image: mariadb:10.3
     container_name: mariadb1
     hostname: mariadb1
@@ -67,6 +65,10 @@ services:
       - "3306:3306"
     networks:
       - galera
+    depends_on:
+      - mariadb1
+      - mariadb2
+      - mariadb3
 
 volumes:
   mariadb1_data:
