@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  mariadb1:
+    depends_on:
+      - haproxy
+    image: mariadb:10.3
+    container_name: mariadb1
+    hostname: mariadb1
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssDB2024
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - ./mariadb/galera1.cnf:/etc/mysql/conf.d/galera.cnf
+      - mariadb1_data:/var/lib/mysql
+    networks:
+      - galera
+    command: --wsrep-new-cluster
+    ports:
+      - 3307:3306
+
+
+  mariadb2:
+    depends_on:
+      - mariadb1
+    image: mariadb:10.3
+    container_name: mariadb2
+    hostname: mariadb2
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssDB2024
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - ./mariadb/galera2.cnf:/etc/mysql/conf.d/galera.cnf
+      - mariadb2_data:/var/lib/mysql
+    networks:
+      - galera
+    ports:
+      - 3308:3306
+
+  mariadb3:
+    depends_on:
+      - mariadb1
+    image: mariadb:10.3
+    container_name: mariadb3
+    hostname: mariadb3
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssDB2024
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - ./mariadb/galera3.cnf:/etc/mysql/conf.d/galera.cnf
+      - mariadb3_data:/var/lib/mysql
+    networks:
+      - galera
+    ports:
+      - 3309:3306
+
+  haproxy:
+    build: ./haproxy
+    container_name: haproxy
+    ports:
+      - "3306:3306"
+    networks:
+      - galera
+
+volumes:
+  mariadb1_data:
+  mariadb2_data:
+  mariadb3_data:
+
+networks:
+  galera:
+    driver: bridge
